@@ -1,6 +1,6 @@
 const client = require('../../db_connect');
 const jwt = require('jsonwebtoken');
-var requestIp = require('request-ip');
+let requestIp = require('request-ip');
 
 // 로그인
 export const login = async (ctx) => {
@@ -32,7 +32,7 @@ export const login = async (ctx) => {
         } else {
 
             ctx.status = 200;
-            const token = await this.generateToken(com_id, input_id);
+            const token = await this.generateToken(com_id, input_id, login_ip);
 
              // 로그인 유지 체크시 1시간
              const loginOpt = {
@@ -41,7 +41,7 @@ export const login = async (ctx) => {
             };
             ctx.cookies.set('access_token', token, loginOpt);     
             ctx.body = retVal.rows;
-            console.log('token', token)
+            console.log("token", token)
         }
         
     };
@@ -72,19 +72,20 @@ export const register = async (ctx) => {
 
 
 // generateToken
-exports.generateToken = async ( com_id, user_id ) => {
+exports.generateToken = async ( com_id, user_id, login_ip ) => {
 
     const sql =   "select * from F_USER_VIEW($1, $2) ";
     const values = [com_id, user_id];
     const retVal = await client.query(sql, values);
-    console.log('generateToken', retVal);
+    // console.log('generateToken', retVal);
 
     if( retVal && retVal.rowCount > 0 ) {
         const token = jwt.sign({
             com_id        : retVal.rows[0].com_id,
-            user_id        : retVal.rows[0].user_id,
-            user_name      : retVal.rows[0].user_name,
-            user_role     : retVal.rows[0].user_role      
+            user_id       : retVal.rows[0].user_id,
+            user_name     : retVal.rows[0].user_name,
+            user_role     : retVal.rows[0].user_role,
+            login_ip      : login_ip   
         },
         process.env.JWT_SECRET,
         {

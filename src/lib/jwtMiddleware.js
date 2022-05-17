@@ -8,10 +8,11 @@ const jwtMiddleware = async (ctx, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     ctx.state.user = {
-      com_id        : decoded.com_id       ,
-      user_id       : decoded.user_id       ,
-      user_name     : decoded.user_name     ,
-      user_role     : decoded.user_role
+      com_id        : decoded.com_id,
+      user_id       : decoded.user_id,
+      user_name     : decoded.user_name,
+      user_role     : decoded.user_role,
+      login_ip      : decoded.login_ip
     };
 
     // 토큰 30분 미만 남으면 재발급

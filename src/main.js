@@ -8,6 +8,7 @@ import api from './api';
 import serve from 'koa-static';
 import path from 'path';
 import send from 'koa-send';
+import jwtMiddleware from './lib/jwtMiddleware';
 
 client.connect(err => { 
     if (err) { 
@@ -30,11 +31,15 @@ app.use(bodyParser({
     jsonLimit: "50mb"
 }));
 
+app.use(jwtMiddleware);
+
 // app 인스턴스에 라우터 적용
 app.use(router.routes()).use(router.allowedMethods());
 
 // PORT가 지정되어 있지 않다면 4000 사용
 const port = PORT || 4000;
-app.listen(port, () => {
-    console.log('Listenig to port %d', port);
-});
+app.listen(port, '0.0.0.0');
+console.log('Listenig to port %d', port)
+// app.listen(port, () => {
+//     console.log('Listenig to port %d', port);
+// });
