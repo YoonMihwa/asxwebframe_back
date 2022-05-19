@@ -41,7 +41,7 @@ export const login = async (ctx) => {
             };
             ctx.cookies.set('access_token', token, loginOpt);     
             ctx.body = retVal.rows;
-            console.log("token", token)
+            // console.log("token", token)
         }
         
     };
