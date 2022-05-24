@@ -12,4 +12,7 @@ admin.post('/tempcd_update', adminCtrl.tempcd_update);          // temp_code upd
 admin.post('/pgm_register', adminCtrl.pgm_register);            // 프로그램 등록
 admin.post('/pgm_list', adminCtrl.pgm_list);                    // 프로그램 조회
 
+admin.post('/lang_register', adminCtrl.lang_register);          // Language 등록
+admin.get('/lang_search', adminCtrl.lang_search);              // Language 조회
+
 export default admin;

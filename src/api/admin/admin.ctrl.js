@@ -182,3 +182,43 @@ export const pgm_list = async (ctx) => {
         ctx.body = result;
     }
 };
+
+
+// Language 등록
+// POST /api/admin/lang_register
+export const lang_register = async (ctx) => {
+    const { lang_id, lang_code, lang_name, lang_type, use_yn } = ctx.request.body;
+
+    const sql =  "select * from F_LANGUAGE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+    const values = ['REGISTER', lang_id, lang_code, lang_name, lang_type, use_yn,
+                     '', ctx.state.user.login_ip, ctx.state.user.user_id];
+    const retVal = await client.query(sql, values);
+
+    if( retVal.rows[0].r_result_type === 'OK' ) {
+        ctx.status = 200;
+        ctx.body = retVal.rows[0].r_result_msg;
+
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+};
+
+// Language 조회
+// POST api/admin/lang_search
+export const lang_search = async (ctx) => {
+    // const { lang_id, lang_code } = ctx.request.body;
+
+    // console.log('lang_search : ', lang_id, lang_code );
+    const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2 ) ";
+    const values = [ '','' ];
+ 
+    const retVal = await client.query(sql, values);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        
+        ctx.status = 200;
+        ctx.body = retVal.rows;;
+    }
+};
