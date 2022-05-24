@@ -3,11 +3,11 @@ const client = require('../../db_connect');
 // 통합코드 조회
 // POST api/admin/code_search
 export const code_search = async (ctx) => {
-    const { com_id, code_class } = ctx.request.body;
+    const { com_id, lang_id, code_class } = ctx.request.body;
 
     // console.log('search main_code : ', main_code );
-    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3 ) ";
-    const values = [ 'SUB', com_id, code_class ];
+    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
+    const values = [ 'SUB', com_id, lang_id, code_class ];
  
     let result = {};
     let search_word = [];
@@ -31,11 +31,11 @@ export const code_search = async (ctx) => {
 // 통합코드 조회
 // POST api/admin/class_search
 export const class_search = async (ctx) => {
-    const { com_id, code_class } = ctx.request.body;
+    const { com_id, lang_id, code_class } = ctx.request.body;
 
     // console.log('search main_code : ', main_code );
-    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3 ) ";
-    const values = [ 'MAIN', com_id, code_class ];
+    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
+    const values = [ 'MAIN', com_id, lang_id, code_class ];
  
     let result = {};
     let search_word = [];
@@ -136,6 +136,49 @@ export const tempcd_update = async (ctx) => {
         ctx.status = 400;
         ctx.body = retVal.rows[0].r_result_msg;
     };
+};
 
-    ctx.status = 200;
+
+// 프로그램 등록
+// POST /api/admin/pgm_register
+export const pgm_register = async (ctx) => {
+    const { pgm_id, pgm_type, pgm_name, lang_id, pgm_lvl, pgm_seq, icon, p_id, pgm_route, use_yn } = ctx.request.body;
+
+    const sql =  "select * from F_PGM_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)";
+    const values = ['REGISTER', pgm_id, pgm_type, pgm_name, lang_id, pgm_lvl, pgm_seq, icon, p_id, pgm_route, 
+                     use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+    const retVal = await client.query(sql, values);
+
+    if( retVal.rows[0].r_result_type === 'OK' ) {
+        ctx.status = 200;
+        ctx.body = retVal.rows[0].r_result_msg;
+
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+};
+
+// 프로그램 조회
+// POST api/admin/pgm_list
+export const pgm_list = async (ctx) => {
+    const { pgm_id } = ctx.request.body;
+
+    console.log('pgm search : ', pgm_id );
+    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3 ) ";
+    const values = [ 'SUB', com_id, code_class ];
+ 
+    const retVal = await client.query(sql, values);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        search_word = code_class.split(",");
+
+        for(let i=0; i<= search_word.length -1; i++) {
+            result[search_word[i]] = (retVal.rows.filter(v => v.code_class === search_word[i]));         
+        }
+
+        ctx.status = 200;
+        ctx.body = result;
+    }
 };
