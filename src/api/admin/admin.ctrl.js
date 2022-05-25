@@ -56,6 +56,26 @@ export const class_search = async (ctx) => {
 };
 
 
+// company 조회
+// POST api/admin/company_list
+export const company_list = async (ctx) => {
+    // const { com_id } = ctx.request.body;
+
+    // console.log('company_list : ', lang_id, lang_code );
+    const sql = "SELECT * FROM F_COM_SEARCH( $1 ) ";
+    const values = [ '' ];
+ 
+    const retVal = await client.query(sql, values);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        
+        ctx.status = 200;
+        ctx.body = retVal.rows;;
+    }
+};
+
+
 // 통합코드 등록 및 수정
 // POST /api/admin/code_register
 export const code_register = async (ctx) => {
