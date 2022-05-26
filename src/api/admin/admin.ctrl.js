@@ -141,10 +141,10 @@ export const comcode_register = async (ctx) => {
 // 통합코드 temp_cd에 내용 등록 ( 통합코드를 따로 관리할 회사id 등록)
 // POST /api/admin/code_temp_update
 export const tempcd_update = async (ctx) => {
-    const { code_class, code_id, memo } = ctx.request.body;
+    const { code_class, memo } = ctx.request.body;
 
     const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-    const values = ['ADDREG', '', code_class, code_id, '', '', 0,
+    const values = ['ADDREG', '', code_class, '', '', '', 0,
                     '', memo, ctx.state.user.login_ip, ctx.state.user.user_id];
     const retVal = await client.query(sql, values);
 
