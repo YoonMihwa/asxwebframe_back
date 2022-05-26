@@ -138,7 +138,7 @@ export const comcode_register = async (ctx) => {
 };
 
 
-// 통합코드 temp_cd에 내용 등록
+// 통합코드 temp_cd에 내용 등록 ( 통합코드를 따로 관리할 회사id 등록)
 // POST /api/admin/code_temp_update
 export const tempcd_update = async (ctx) => {
     const { code_class, code_id, memo } = ctx.request.body;
@@ -207,11 +207,11 @@ export const pgm_list = async (ctx) => {
 // Language 등록
 // POST /api/admin/lang_register
 export const lang_register = async (ctx) => {
-    const { lang_id, lang_code, lang_name, lang_type, use_yn } = ctx.request.body;
+    const { lang_id, lang_code, lang_name, lang_type, remark, use_yn } = ctx.request.body;
 
     const sql =  "select * from F_LANGUAGE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
     const values = ['REGISTER', lang_id, lang_code, lang_name, lang_type, use_yn,
-                     '', ctx.state.user.login_ip, ctx.state.user.user_id];
+                    remark, ctx.state.user.login_ip, ctx.state.user.user_id];
     const retVal = await client.query(sql, values);
 
     if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -232,6 +232,108 @@ export const lang_search = async (ctx) => {
     // console.log('lang_search : ', lang_id, lang_code );
     const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2 ) ";
     const values = [ '','' ];
+ 
+    const retVal = await client.query(sql, values);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        
+        ctx.status = 200;
+        ctx.body = retVal.rows;;
+    }
+};
+
+// Grid main 등록
+// POST /api/admin/grid_register
+export const grid_register = async (ctx) => {
+    const { grid_id, grid_desc, use_yn } = ctx.request.body;
+
+    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+        sql += "                             $21, $22, $23, $24, $25, $26, $27 )";
+    const values = ['GRID_REGISTER', grid_id, grid_desc, '','','','','','','','','','','','','','','','','',
+                    '', '', '0', '', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+    const retVal = await client.query(sql, values);
+
+    if( retVal.rows[0].r_result_type === 'OK' ) {
+        ctx.status = 200;
+        ctx.body = retVal.rows[0].r_result_msg;
+
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+};
+
+// Grid 조회
+// POST api/admin/grid_list
+export const grid_list = async (ctx) => {
+   
+    // console.log('lang_search : ', lang_id, lang_code );
+    const sql = "SELECT * FROM F_GRID_LIST(  ) ";
+ 
+    const retVal = await client.query(sql);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        
+        ctx.status = 200;
+        ctx.body = retVal.rows;;
+    }
+};
+
+// Grid items 등록
+// POST /api/admin/grid_items
+export const grid_items = async (ctx) => {
+    const { grid_id,  
+            item_id,			//-- item id
+	        item_name,			//-- 컬럼명
+	        item_caption,		//-- 헤더명
+	        data_type,			//-- 셀 형식 string/number/date/boolean/object/datetime
+	        btn_text,			//-- 버튼명
+	        btn_event,			//-- 버튼 이벤트 (onTextClick)
+	        headbtn_text,		//-- Header 버튼명			-- 10
+	        headbtn_event,		//-- Header 버튼 이벤트 (onClickHeadBtn)
+	        width,				//-- 너비
+	        number_type ,		//-- 정수/실수
+	        digit,				//-- 소수점 자릿수	
+	        icon,				//-- icon
+	        icon_wdith,		    //-- icon 너비			
+	        icon_height,		//-- icon 높이
+	        alignment,			//-- 정렬 right/center/left
+	        visible_yn,		    //-- 숨김여부 true / false
+	        fixed_yn,		    //-- 열고정 defulat: false	-- 20
+	        format,		        //-- 포맷  billions/currency/day/decimal/exponential/fixedPoint/largeNumber/longDate/longTime/millions/millisecond/month/monthAndDay/monthAndYear/percent/quarter/quarterAndYear/shortDate/shortTime/thousands/trillions/year/dayOfWeek/hour/longDateLongTime/minute/second/shortDateShortTime default ''
+	        doubleHeader,	    //-- doubleHeader
+	        display_seq,		//-- 정렬순서	
+            lang_id,            //-- language id
+            use_yn              //-- 
+        } = ctx.request.body;
+
+    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+        sql += "                             $21, $22, $23, $24, $25, $26, $27)";
+    const values = ['ITEM_REGISTER', grid_id, '', item_id, item_name, item_caption, data_type, btn_text, btn_event, headbtn_text, 
+                    headbtn_event, width, number_type, digit, icon, icon_wdith, icon_height, alignment, visible_yn, fixed_yn,     
+                    format, doubleHeader, display_seq, lang_id, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+    const retVal = await client.query(sql, values);
+
+    if( retVal.rows[0].r_result_type === 'OK' ) {
+        ctx.status = 200;
+        ctx.body = retVal.rows[0].r_result_msg;
+
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+};
+
+// Grid items 조회
+// POST api/admin/grid_item_view
+export const grid_item_view = async (ctx) => {
+    const { grid_id, lang_code } = ctx.request.body;
+
+    console.log('grid_item_view : ', grid_id, lang_code );
+    const sql = "SELECT * FROM F_GRID_ITEM_VIEW( $1, $2 ) ";
+    const values = [ grid_id, lang_code];
  
     const retVal = await client.query(sql, values);
     if( retVal.rowCount === 0 ){
