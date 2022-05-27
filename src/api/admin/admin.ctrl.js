@@ -227,11 +227,11 @@ export const lang_register = async (ctx) => {
 // Language 조회
 // POST api/admin/lang_search
 export const lang_search = async (ctx) => {
-    // const { lang_id, lang_code } = ctx.request.body;
+    const { lang_id, lang_code, lang_name, lang_type } = ctx.request.body;
 
-    // console.log('lang_search : ', lang_id, lang_code );
-    const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2 ) ";
-    const values = [ '','' ];
+    console.log('lang_search : ', lang_id, lang_code );
+    const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2, $3, $4 ) ";
+    const values = [ lang_id, lang_code, lang_name, lang_type ];
  
     const retVal = await client.query(sql, values);
     if( retVal.rowCount === 0 ){
@@ -249,9 +249,9 @@ export const grid_register = async (ctx) => {
     const { grid_id, grid_desc, use_yn } = ctx.request.body;
 
     let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
-        sql += "                             $21, $22, $23, $24, $25, $26, $27 )";
+        sql += "                             $21, $22, $23, $24, $25 )";
     const values = ['GRID_REGISTER', grid_id, grid_desc, '','','','','','','','','','','','','','','','','',
-                    '', '', '0', '', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+                     '', '0', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
     const retVal = await client.query(sql, values);
 
     if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -294,7 +294,6 @@ export const grid_items = async (ctx) => {
 	        headbtn_text,		//-- Header 버튼명			-- 10
 	        headbtn_event,		//-- Header 버튼 이벤트 (onClickHeadBtn)
 	        width,				//-- 너비
-	        number_type ,		//-- 정수/실수
 	        digit,				//-- 소수점 자릿수	
 	        icon,				//-- icon
 	        icon_wdith,		    //-- icon 너비			
@@ -305,15 +304,14 @@ export const grid_items = async (ctx) => {
 	        format,		        //-- 포맷  billions/currency/day/decimal/exponential/fixedPoint/largeNumber/longDate/longTime/millions/millisecond/month/monthAndDay/monthAndYear/percent/quarter/quarterAndYear/shortDate/shortTime/thousands/trillions/year/dayOfWeek/hour/longDateLongTime/minute/second/shortDateShortTime default ''
 	        doubleHeader,	    //-- doubleHeader
 	        display_seq,		//-- 정렬순서	
-            lang_id,            //-- language id
             use_yn              //-- 
         } = ctx.request.body;
 
     let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
-        sql += "                             $21, $22, $23, $24, $25, $26, $27)";
+        sql += "                             $21, $22, $23, $24, $25)";
     const values = ['ITEM_REGISTER', grid_id, '', item_id, item_name, item_caption, data_type, btn_text, btn_event, headbtn_text, 
-                    headbtn_event, width, number_type, digit, icon, icon_wdith, icon_height, alignment, visible_yn, fixed_yn,     
-                    format, doubleHeader, display_seq, lang_id, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+                    headbtn_event, width, digit, icon, icon_wdith, icon_height, alignment, visible_yn, fixed_yn, format,    
+                    doubleHeader, display_seq, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
     const retVal = await client.query(sql, values);
 
     if( retVal.rows[0].r_result_type === 'OK' ) {
