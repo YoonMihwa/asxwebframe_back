@@ -9,6 +9,7 @@ admin.get('/company_list', adminCtrl.company_list);             // 회사코드 
 admin.post('/code_register', adminCtrl.code_register);          // 통합코드 등록 및 수정
 admin.post('/comcode_register', adminCtrl.comcode_register);    // 회사별 통합코드 등록 및 수정
 admin.post('/tempcd_update', adminCtrl.tempcd_update);          // temp_code update
+admin.post('/code_display', adminCtrl.code_display);            // 통합코드 display 순서 변경
 
 admin.post('/pgm_register', adminCtrl.pgm_register);            // 프로그램 등록
 admin.post('/pgm_list', adminCtrl.pgm_list);                    // 프로그램 조회
