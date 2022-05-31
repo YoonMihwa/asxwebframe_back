@@ -3,11 +3,11 @@ const client = require('../../db_connect');
 // 통합코드 조회
 // POST api/admin/code_search
 export const code_search = async (ctx) => {
-    const { com_id, lang_id, code_class } = ctx.request.body;
+    const { com_id, lang_code, code_class } = ctx.request.body;
 
     // console.log('search main_code : ', main_code );
     const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
-    const values = [ 'SUB', com_id, lang_id, code_class ];
+    const values = [ 'SUB', com_id, lang_code, code_class ];
  
     let result = {};
     let search_word = [];
@@ -31,11 +31,11 @@ export const code_search = async (ctx) => {
 // 통합코드 조회
 // POST api/admin/class_search
 export const class_search = async (ctx) => {
-    const { com_id, lang_id, code_class } = ctx.request.body;
+    const { com_id, lang_code, code_class } = ctx.request.body;
 
     // console.log('search main_code : ', main_code );
     const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
-    const values = [ 'MAIN', com_id, lang_id, code_class ];
+    const values = [ 'MAIN', com_id, lang_code, code_class ];
  
     let result = {};
     let search_word = [];
