@@ -230,20 +230,6 @@ export const pgm_list = async (ctx) => {
 export const lang_register = async (ctx) => {
     const { lang_id, languages, lang_type, remark, use_yn } = ctx.request.body;
 
-    // const sql =  "select * from F_LANGUAGE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
-    // const values = ['REGISTER', lang_id, lang_code, lang_name, lang_type, use_yn,
-    //                 remark, ctx.state.user.login_ip, ctx.state.user.user_id];
-    // const retVal = await client.query(sql, values);
-
-    // if( retVal.rows[0].r_result_type === 'OK' ) {
-    //     ctx.status = 200;
-    //     ctx.body = retVal.rows[0].r_result_msg;
-
-    // } else {
-    //     ctx.status = 400;
-    //     ctx.body = retVal.rows[0].r_result_msg;
-    // };
-    
     if( languages && Array.isArray(languages) ) {
         languages.forEach(async lang => {
             console.log('Codes write...', lang_id, lang.lang_code, lang.lang_name, lang_type);
@@ -285,6 +271,26 @@ export const lang_search = async (ctx) => {
         ctx.body = retVal.rows;;
     }
 };
+
+// Language id를 lang_code별로 조회
+// POST api/admin/multi_lang_search
+export const multi_lang_search = async (ctx) => {
+    const { lang_id, lang_name, lang_type } = ctx.request.body;
+
+    console.log('multi_lang_search : ', lang_id );
+    const sql = "SELECT * FROM F_MULTI_LANGUAGE_SEARCH( $1, $2, $3 ) ";
+    const values = [ lang_id, lang_name, lang_type ];
+ 
+    const retVal = await client.query(sql, values);
+    if( retVal.rowCount === 0 ){
+        ctx.body = [];
+    } else {
+        
+        ctx.status = 200;
+        ctx.body = retVal.rows;;
+    }
+};
+
 
 // Grid main 등록
 // POST /api/admin/grid_register

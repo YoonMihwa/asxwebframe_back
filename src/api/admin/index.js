@@ -16,6 +16,7 @@ admin.post('/pgm_list', adminCtrl.pgm_list);                    // 프로그램 
 
 admin.post('/lang_register', adminCtrl.lang_register);          // Language 등록
 admin.post('/lang_search', adminCtrl.lang_search);              // Language 조회
+admin.post('/multi_lang_search', adminCtrl.multi_lang_search);  // Language id를 lang_code별로 조회
 
 admin.post('/grid_register', adminCtrl.grid_register);          // Grid 등록
 admin.post('/grid_items', adminCtrl.grid_items);                // Grid 상세 item 등록
