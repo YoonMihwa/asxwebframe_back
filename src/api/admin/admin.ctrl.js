@@ -271,7 +271,7 @@ export const grid_register = async (ctx) => {
 
     let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
         sql += "                             $21, $22, $23, $24, $25 )";
-    const values = ['GRID_REGISTER', grid_id, grid_desc, '','','','','','','','','','','','','','','','','',
+    const values = ['GRID_REGISTER', grid_id, grid_desc, 0,'','','','','','','','','','','','','','','','',
                      '', '0', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
     const retVal = await client.query(sql, values);
 
