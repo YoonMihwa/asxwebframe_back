@@ -391,3 +391,25 @@ export const grid_item_view = async (ctx) => {
         ctx.body = retVal.rows;;
     }
 };
+
+// Grid item 삭제
+// POST api/admin/grid_item_del
+export const grid_item_del = async (ctx) => {
+    const { grid_id, item_id } = ctx.request.body;
+
+    console.log('grid_item_del : ', grid_id, item_id );
+    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+        sql += "                             $21, $22, $23, $24, $25)";
+    const values = ['ITEM_DELETE', grid_id, '', item_id, '', '', '', '', '', '', 
+                    '', '', '', '', '', '', '', '', '', '',    
+                    '', '0', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+    console.log('values : ', values );                    
+    const retVal = await client.query(sql, values);
+    if( retVal.rows[0].r_result_type === 'OK' ) {
+        ctx.status = 200;
+        ctx.body = retVal.rows[0].r_result_msg;
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+};

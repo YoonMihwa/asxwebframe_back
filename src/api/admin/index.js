@@ -22,5 +22,6 @@ admin.post('/grid_register', adminCtrl.grid_register);          // Grid 등록
 admin.post('/grid_items', adminCtrl.grid_items);                // Grid 상세 item 등록
 admin.get('/grid_list', adminCtrl.grid_list);                   // Grid 조회
 admin.post('/grid_item_view', adminCtrl.grid_item_view);        // Grid item 조회
+admin.post('/grid_item_del', adminCtrl.grid_item_del);          // Grid item 삭제
 
 export default admin;
