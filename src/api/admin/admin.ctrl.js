@@ -510,7 +510,7 @@ export const grid_item_del = async (ctx) => {
     }         
 };
 
-// Error Msg 
+// Error Log
 // POST /api/admin/err_log
 export const err_log = async (ctx) => {
     const { err_id, api_url, sys_err_msg, ctx_err_msg, user_memo, page_code } = ctx.request.body;
@@ -528,6 +528,31 @@ export const err_log = async (ctx) => {
             ctx.status = 400;
             ctx.body = retVal.rows[0].r_result_msg;
         };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+
+// Error Log 조회
+// POST api/admin/err_log_search
+export const err_log_search = async (ctx) => {
+    const { from_date, to_date, search_user } = ctx.request.body;
+
+    try {   
+        console.log('err_log_search : ', from_date, to_date, search_user );
+        const sql = "SELECT * FROM F_ERRLOG_SEARCH( $1, $2, $3 ) ";
+        const values = [ from_date, to_date, search_user];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
     } catch(e) {
         console.error(e);
         ctx.status = 400;
