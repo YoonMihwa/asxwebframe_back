@@ -5,25 +5,31 @@ const client = require('../../db_connect');
 export const code_search = async (ctx) => {
     const { com_id, lang_code, code_class } = ctx.request.body;
 
-    // console.log('search main_code : ', main_code );
-    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
-    const values = [ 'SUB', com_id, lang_code, code_class ];
- 
-    let result = {};
-    let search_word = [];
+    try {
 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        search_word = code_class.split(",");
+        // console.log('search main_code : ', main_code );
+        const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
+        const values = [ 'SUB', com_id, lang_code, code_class ];
+    
+        let result = {};
+        let search_word = [];
 
-        for(let i=0; i<= search_word.length -1; i++) {
-            result[search_word[i]] = (retVal.rows.filter(v => v.code_class === search_word[i]));         
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            search_word = code_class.split(",");
+
+            for(let i=0; i<= search_word.length -1; i++) {
+                result[search_word[i]] = (retVal.rows.filter(v => v.code_class === search_word[i]));         
+            }
+
+            ctx.status = 200;
+            ctx.body = result;
         }
-
-        ctx.status = 200;
-        ctx.body = result;
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
     }
 };
 
@@ -33,26 +39,31 @@ export const code_search = async (ctx) => {
 export const class_search = async (ctx) => {
     const { com_id, lang_code, code_class } = ctx.request.body;
 
-    // console.log('search main_code : ', main_code );
-    const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
-    const values = [ 'MAIN', com_id, lang_code, code_class ];
- 
-    let result = {};
-    let search_word = [];
+    try {
+        // console.log('search main_code : ', main_code );
+        const sql = "SELECT * FROM F_CODE_SEARCH( $1, $2, $3, $4 ) ";
+        const values = [ 'MAIN', com_id, lang_code, code_class ];
+    
+        let result = {};
+        let search_word = [];
 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        search_word = code_class.split(",");
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            search_word = code_class.split(",");
 
-        for(let i=0; i<= search_word.length -1; i++) {
-            result[search_word[i]] = (retVal.rows.filter(v => v.code_class === search_word[i]));         
+            for(let i=0; i<= search_word.length -1; i++) {
+                result[search_word[i]] = (retVal.rows.filter(v => v.code_class === search_word[i]));         
+            }
+
+            ctx.status = 200;
+            ctx.body = result;
         }
-
-        ctx.status = 200;
-        ctx.body = result;
-    }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }        
 };
 
 
@@ -61,18 +72,22 @@ export const class_search = async (ctx) => {
 export const company_list = async (ctx) => {
     // const { com_id } = ctx.request.body;
 
-    // console.log('company_list : ', lang_id, lang_code );
-    const sql = "SELECT * FROM F_COM_SEARCH( $1 ) ";
-    const values = [ '' ];
- 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        
-        ctx.status = 200;
-        ctx.body = retVal.rows;;
-    }
+    try {
+        const sql = "SELECT * FROM F_COM_SEARCH( $1 ) ";
+        const values = [ '' ];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }  
 };
 
 
@@ -83,27 +98,37 @@ export const code_register = async (ctx) => {
 
     // console.log('code register', codes)
 
-    if( codes && Array.isArray(codes) ) {
-        codes.forEach(async code => {
-            console.log('Codes write...', code.code_class, code.code_id, code.code_name);
+    try {
+        if( codes && Array.isArray(codes) ) {
+            codes.forEach(async code => {
+                console.log('Codes write...', code.code_class, code.code_id, code.code_name);
 
-            const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-            const values = ['REGISTER', '', code.code_class, code.code_id, code.code_name, code.lang_id, code.seq,
-                            code.use_yn, code.memo, ctx.state.user.login_ip, ctx.state.user.user_id];
-            const retVal = await client.query(sql, values);
+                try {
+                    const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
+                    const values = ['REGISTER', '', code.code_class, code.code_id, code.code_name, code.lang_id, code.seq,
+                                    code.use_yn, code.memo, ctx.state.user.login_ip, ctx.state.user.user_id];
+                    const retVal = await client.query(sql, values);
 
-            if( retVal.rows[0].r_result_type === 'OK' ) {
-                ctx.status = 200;
-                ctx.body = retVal.rows[0].r_result_msg;
-        
-            } else {
-                ctx.status = 400;
-                ctx.body = retVal.rows[0].r_result_msg;
-            };
-        })
-    };
+                    if( retVal.rows[0].r_result_type === 'OK' ) {
+                        ctx.status = 200;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                
+                    } else {
+                        ctx.status = 400;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                    };
+                } catch(e) {
+                    console.error(e);
+                    ctx.status = 400;
+                }                       
+            })
+        };
 
-    ctx.status = 200;
+        ctx.status = 200;
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }     
 };
 
 
@@ -112,29 +137,39 @@ export const code_register = async (ctx) => {
 export const comcode_register = async (ctx) => {
     const { codes } = ctx.request.body;
 
-    // console.log('code register', codes)
+    try {
+        // console.log('code register', codes)
 
-    if( codes && Array.isArray(codes) ) {
-        codes.forEach(async code => {
-            console.log('com codes write...', code.com_id, code.code_class, code.code_id, code.code_name);
+        if( codes && Array.isArray(codes) ) {
+            codes.forEach(async code => {
+                console.log('com codes write...', code.com_id, code.code_class, code.code_id, code.code_name);
+                
+                try {
+                    const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
+                    const values = ['COMCODEREG', code.com_id, code.code_class, code.code_id, code.code_name, code.lang_id, code.seq,
+                                    code.use_yn, code.memo, ctx.state.user.login_ip, ctx.state.user.user_id];
+                    const retVal = await client.query(sql, values);
 
-            const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-            const values = ['COMCODEREG', code.com_id, code.code_class, code.code_id, code.code_name, code.lang_id, code.seq,
-                            code.use_yn, code.memo, ctx.state.user.login_ip, ctx.state.user.user_id];
-            const retVal = await client.query(sql, values);
+                    if( retVal.rows[0].r_result_type === 'OK' ) {
+                        ctx.status = 200;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                
+                    } else {
+                        ctx.status = 400;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                    };
+                } catch(e) {
+                    console.error(e);
+                    ctx.status = 400;
+                }                      
+            })
+        };
 
-            if( retVal.rows[0].r_result_type === 'OK' ) {
-                ctx.status = 200;
-                ctx.body = retVal.rows[0].r_result_msg;
-        
-            } else {
-                ctx.status = 400;
-                ctx.body = retVal.rows[0].r_result_msg;
-            };
-        })
-    };
-
-    ctx.status = 200;
+        ctx.status = 200;
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }          
 };
 
 
@@ -143,19 +178,25 @@ export const comcode_register = async (ctx) => {
 export const tempcd_update = async (ctx) => {
     const { code_class, memo } = ctx.request.body;
 
-    const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-    const values = ['ADDREG', '', code_class, '', '', '', 0,
-                    '', memo, ctx.state.user.login_ip, ctx.state.user.user_id];
-    const retVal = await client.query(sql, values);
+    try {
 
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
+        const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
+        const values = ['ADDREG', '', code_class, '', '', '', 0,
+                        '', memo, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
 
-    } else {
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }
 };
 
 
@@ -164,19 +205,24 @@ export const tempcd_update = async (ctx) => {
 export const code_display = async (ctx) => {
     const { code_class, code_id, display_seq} = ctx.request.body;
 
-    const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
-    const values = ['DISPLAY_SEQ', '', code_class, code_id, '', '', display_seq,
-                    '', '', ctx.state.user.login_ip, ctx.state.user.user_id];
-    const retVal = await client.query(sql, values);
+    try {   
+        const sql =  "select * from F_CODE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)";
+        const values = ['DISPLAY_SEQ', '', code_class, code_id, '', '', display_seq,
+                        '', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
 
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
 
-    } else {
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }
 };
 
 
@@ -185,19 +231,24 @@ export const code_display = async (ctx) => {
 export const pgm_register = async (ctx) => {
     const { pgm_id, pgm_type, pgm_name, lang_id, pgm_lvl, pgm_seq, icon, p_id, pgm_route, use_yn } = ctx.request.body;
 
-    const sql =  "select * from F_PGM_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)";
-    const values = ['REGISTER', pgm_id, pgm_type, pgm_name, lang_id, pgm_lvl, pgm_seq, icon, p_id, pgm_route, 
-                     use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
-    const retVal = await client.query(sql, values);
+    try {   
+        const sql =  "select * from F_PGM_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)";
+        const values = ['REGISTER', pgm_id, pgm_type, pgm_name, lang_id, pgm_lvl, pgm_seq, icon, p_id, pgm_route, 
+                        use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
 
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
 
-    } else {
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }        
 };
 
 // 프로그램 조회
@@ -230,46 +281,62 @@ export const pgm_list = async (ctx) => {
 export const lang_register = async (ctx) => {
     const { lang_id, languages, lang_type, remark, use_yn } = ctx.request.body;
 
-    if( languages && Array.isArray(languages) ) {
-        languages.forEach(async lang => {
-            console.log('Codes write...', lang_id, lang.lang_code, lang.lang_name, lang_type);
+    try {   
+        if( languages && Array.isArray(languages) ) {
+            languages.forEach(async lang => {
+                console.log('Codes write...', lang_id, lang.lang_code, lang.lang_name, lang_type);
 
-            const sql =  "select * from F_LANGUAGE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
-            const values = ['REGISTER', lang_id, lang.lang_code, lang.lang_name, lang_type, use_yn,
-                    remark, ctx.state.user.login_ip, ctx.state.user.user_id];
-            const retVal = await client.query(sql, values);
+                try {   
+                    const sql =  "select * from F_LANGUAGE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+                    const values = ['REGISTER', lang_id, lang.lang_code, lang.lang_name, lang_type, use_yn,
+                            remark, ctx.state.user.login_ip, ctx.state.user.user_id];
+                    const retVal = await client.query(sql, values);
 
-            if( retVal.rows[0].r_result_type === 'OK' ) {
-                ctx.status = 200;
-                ctx.body = retVal.rows[0].r_result_msg;
-        
-            } else {
-                ctx.status = 400;
-                ctx.body = retVal.rows[0].r_result_msg;
-            };
-        })
-    };
+                    if( retVal.rows[0].r_result_type === 'OK' ) {
+                        ctx.status = 200;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                
+                    } else {
+                        ctx.status = 400;
+                        ctx.body = retVal.rows[0].r_result_msg;
+                    };
+                } catch(e) {
+                    console.error(e);
+                    ctx.status = 400;
+                } 
+            })
+        };
 
-    ctx.status = 200;
+        ctx.status = 200;
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    } 
 };
 
 // Language 조회
 // POST api/admin/lang_search
 export const lang_search = async (ctx) => {
     const { lang_id, lang_code, lang_name, lang_type } = ctx.request.body;
-
+    
     console.log('lang_search : ', lang_id, lang_code );
-    const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2, $3, $4 ) ";
-    const values = [ lang_id, lang_code, lang_name, lang_type ];
- 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        
-        ctx.status = 200;
-        ctx.body = retVal.rows;;
-    }
+
+    try {   
+        const sql = "SELECT * FROM F_LANGUAGE_SEARCH( $1, $2, $3, $4 ) ";
+        const values = [ lang_id, lang_code, lang_name, lang_type ];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
 };
 
 // Language id를 lang_code별로 조회
@@ -277,18 +344,23 @@ export const lang_search = async (ctx) => {
 export const multi_lang_search = async (ctx) => {
     const { lang_id, lang_name, lang_type } = ctx.request.body;
 
-    console.log('multi_lang_search : ', lang_id );
-    const sql = "SELECT * FROM F_MULTI_LANGUAGE_SEARCH( $1, $2, $3 ) ";
-    const values = [ lang_id, lang_name, lang_type ];
- 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        
-        ctx.status = 200;
-        ctx.body = retVal.rows;;
-    }
+    try {   
+        console.log('multi_lang_search : ', lang_id );
+        const sql = "SELECT * FROM F_MULTI_LANGUAGE_SEARCH( $1, $2, $3 ) ";
+        const values = [ lang_id, lang_name, lang_type ];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    } 
 };
 
 
@@ -297,37 +369,47 @@ export const multi_lang_search = async (ctx) => {
 export const grid_register = async (ctx) => {
     const { grid_id, grid_desc, use_yn } = ctx.request.body;
 
-    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
-        sql += "                             $21, $22, $23, $24, $25 )";
-    const values = ['GRID_REGISTER', grid_id, grid_desc, 0,'','','','','','','','','','','','','','','','',
-                     '', '0', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
-    const retVal = await client.query(sql, values);
+    try {   
+        let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+            sql += "                             $21, $22, $23, $24, $25 )";
+        const values = ['GRID_REGISTER', grid_id, grid_desc, 0,'','','','','','','','','','','','','','','','',
+                        '', '0', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
 
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
 
-    } else {
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }         
 };
 
 // Grid 조회
 // POST api/admin/grid_list
 export const grid_list = async (ctx) => {
    
-    // console.log('lang_search : ', lang_id, lang_code );
-    const sql = "SELECT * FROM F_GRID_LIST(  ) ";
- 
-    const retVal = await client.query(sql);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        
-        ctx.status = 200;
-        ctx.body = retVal.rows;;
-    }
+    try {   
+        // console.log('lang_search : ', lang_id, lang_code );
+        const sql = "SELECT * FROM F_GRID_LIST(  ) ";
+    
+        const retVal = await client.query(sql);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }            
 };
 
 // Grid items 등록
@@ -356,21 +438,26 @@ export const grid_items = async (ctx) => {
             use_yn              //-- 
         } = ctx.request.body;
 
-    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
-        sql += "                             $21, $22, $23, $24, $25)";
-    const values = ['ITEM_REGISTER', grid_id, '', item_id, item_name, item_caption, data_type, btn_text, btn_event, headbtn_text, 
-                    headbtn_event, width, digit, icon, icon_wdith, icon_height, alignment, visible_yn, fixed_yn, format,    
-                    doubleHeader, display_seq, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
-    const retVal = await client.query(sql, values);
+    try {   
+        let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+            sql += "                             $21, $22, $23, $24, $25)";
+        const values = ['ITEM_REGISTER', grid_id, '', item_id, item_name, item_caption, data_type, btn_text, btn_event, headbtn_text, 
+                        headbtn_event, width, digit, icon, icon_wdith, icon_height, alignment, visible_yn, fixed_yn, format,    
+                        doubleHeader, display_seq, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
 
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
 
-    } else {
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }    
 };
 
 // Grid items 조회
@@ -378,18 +465,23 @@ export const grid_items = async (ctx) => {
 export const grid_item_view = async (ctx) => {
     const { grid_id, lang_code } = ctx.request.body;
 
-    console.log('grid_item_view : ', grid_id, lang_code );
-    const sql = "SELECT * FROM F_GRID_ITEM_VIEW( $1, $2 ) ";
-    const values = [ grid_id, lang_code];
- 
-    const retVal = await client.query(sql, values);
-    if( retVal.rowCount === 0 ){
-        ctx.body = [];
-    } else {
-        
-        ctx.status = 200;
-        ctx.body = retVal.rows;;
-    }
+    try {   
+        console.log('grid_item_view : ', grid_id, lang_code );
+        const sql = "SELECT * FROM F_GRID_ITEM_VIEW( $1, $2 ) ";
+        const values = [ grid_id, lang_code];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
 };
 
 // Grid item 삭제
@@ -397,19 +489,47 @@ export const grid_item_view = async (ctx) => {
 export const grid_item_del = async (ctx) => {
     const { grid_id, item_id } = ctx.request.body;
 
-    console.log('grid_item_del : ', grid_id, item_id );
-    let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
-        sql += "                             $21, $22, $23, $24, $25)";
-    const values = ['ITEM_DELETE', grid_id, '', item_id, '', '', '', '', '', '', 
-                    '', '', '', '', '', '', '', '', '', '',    
-                    '', '0', '', ctx.state.user.login_ip, ctx.state.user.user_id];
-    console.log('values : ', values );                    
-    const retVal = await client.query(sql, values);
-    if( retVal.rows[0].r_result_type === 'OK' ) {
-        ctx.status = 200;
-        ctx.body = retVal.rows[0].r_result_msg;
-    } else {
+    try {   
+        console.log('grid_item_del : ', grid_id, item_id );
+        let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+            sql += "                             $21, $22, $23, $24, $25)";
+        const values = ['ITEM_DELETE', grid_id, '', item_id, '', '', '', '', '', '', 
+                        '', '', '', '', '', '', '', '', '', '',    
+                        '', '0', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
         ctx.status = 400;
-        ctx.body = retVal.rows[0].r_result_msg;
-    };
+    }         
+};
+
+// Error Msg 
+// POST /api/admin/err_log
+export const err_log = async (ctx) => {
+    const { err_id, api_url, sys_err_msg, ctx_err_msg, user_memo, page_code } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_ERROR_LOG ($1, $2, $3, $4, $5, $6, $7, $8)";
+        const values = [err_id, api_url, sys_err_msg, ctx_err_msg, user_memo, page_code, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
 };

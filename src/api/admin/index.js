@@ -24,4 +24,6 @@ admin.get('/grid_list', adminCtrl.grid_list);                   // Grid 조회
 admin.post('/grid_item_view', adminCtrl.grid_item_view);        // Grid item 조회
 admin.post('/grid_item_del', adminCtrl.grid_item_del);          // Grid item 삭제
 
+admin.post('/err_log', adminCtrl.err_log);                      // err_log
+
 export default admin;
