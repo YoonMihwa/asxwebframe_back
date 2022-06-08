@@ -538,12 +538,12 @@ export const ctrl_register = async (ctx) => {
 // Control 조회
 // POST api/admin/ctrl_view
 export const ctrl_view = async (ctx) => {
-    const { ctrl_id, lang_code } = ctx.request.body;
+    const { ctrl_id, ctrl_desc, lang_code } = ctx.request.body;
 
     try {   
         console.log('ctrl_view : ', ctrl_id, lang_code );
-        const sql = "SELECT * FROM F_CONTROL_VIEW( $1, $2 ) ";
-        const values = [ ctrl_id, lang_code ];
+        const sql = "SELECT * FROM F_CONTROL_VIEW( $1, $2, $3 ) ";
+        const values = [ ctrl_id, ctrl_desc, lang_code ];
     
         const retVal = await client.query(sql, values);
         if( retVal.rowCount === 0 ){
