@@ -514,11 +514,11 @@ export const grid_item_del = async (ctx) => {
 // Control 등록
 // POST /api/admin/ctrl_register
 export const ctrl_register = async (ctx) => {
-    const { ctrl_id, ctrl_desc, visible_yn, use_yn } = ctx.request.body;
+    const { ctrl_id, ctrl_lang_id, visible_yn } = ctx.request.body;
 
     try {   
         const sql =  "select * from F_CONTROL_MANAGE ($1, $2, $3, $4, $5, $6, $7)";
-        const values = ['CTRL_REGISTER', ctrl_id, ctrl_desc, visible_yn, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const values = ['CTRL_REGISTER', ctrl_id, ctrl_lang_id, visible_yn, '', ctx.state.user.login_ip, ctx.state.user.user_id];
         const retVal = await client.query(sql, values);
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -536,14 +536,14 @@ export const ctrl_register = async (ctx) => {
 };
 
 // Control 조회
-// POST api/admin/ctrl_view
-export const ctrl_view = async (ctx) => {
-    const { ctrl_id, ctrl_desc, lang_code } = ctx.request.body;
+// POST api/admin/ctrl_search
+export const ctrl_search = async (ctx) => {
+    const { ctrl_id, ctrl_lang_id, ctrl_name } = ctx.request.body;
 
     try {   
-        console.log('ctrl_view : ', ctrl_id, lang_code );
+        console.log('ctrl_search : ', ctrl_id, ctrl_lang_id,ctrl_name );
         const sql = "SELECT * FROM F_CONTROL_VIEW( $1, $2, $3 ) ";
-        const values = [ ctrl_id, ctrl_desc, lang_code ];
+        const values = [ ctrl_id, ctrl_lang_id, ctrl_name ];
     
         const retVal = await client.query(sql, values);
         if( retVal.rowCount === 0 ){
