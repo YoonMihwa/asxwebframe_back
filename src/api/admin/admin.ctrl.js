@@ -510,6 +510,79 @@ export const grid_item_del = async (ctx) => {
     }         
 };
 
+
+// Control 등록
+// POST /api/admin/ctrl_register
+export const ctrl_register = async (ctx) => {
+    const { ctrl_id, ctrl_desc, visible_yn, use_yn } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_CONTROL_MANAGE ($1, $2, $3, $4, $5, $6, $7)";
+        const values = ['CTRL_REGISTER', ctrl_id, ctrl_desc, visible_yn, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+// Control 조회
+// POST api/admin/ctrl_view
+export const ctrl_view = async (ctx) => {
+    const { ctrl_id, lang_code } = ctx.request.body;
+
+    try {   
+        console.log('ctrl_view : ', ctrl_id, lang_code );
+        const sql = "SELECT * FROM F_CONTROL_VIEW( $1, $2 ) ";
+        const values = [ ctrl_id, lang_code ];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+// Control 삭제
+// delete /api/admin/ctrl_del
+export const ctrl_del = async (ctx) => {
+    const { ctrl_id } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_CONTROL_MANAGE ($1, $2, $3, $4, $5, $6, $7)";
+        const values = ['CTRL_DELETE', ctrl_id, '', '', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
 // Error Log
 // POST /api/admin/err_log
 export const err_log = async (ctx) => {
