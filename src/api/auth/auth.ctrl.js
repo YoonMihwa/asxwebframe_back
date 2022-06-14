@@ -80,6 +80,30 @@ export const register = async (ctx) => {
     }           
 };
 
+// User 조회
+// POST api/auth/search
+export const search = async (ctx) => {
+    const { com_id, user_id, user_name, user_role, dept, lang_code } = ctx.request.body;
+    
+    console.log('user search : ', user_id, user_name );
+
+    try {   
+        const sql = "SELECT * FROM F_USER_SEARCH( $1, $2, $3, $4, $5, $6 ) ";
+        const values = [ com_id, user_id, user_name, user_role, dept, lang_code ];
+    
+        const retVal = await client.query(sql, values);
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            
+            ctx.status = 200;
+            ctx.body = retVal.rows;;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
 
 // generateToken
 exports.generateToken = async ( com_id, user_id, login_ip ) => {
