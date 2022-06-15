@@ -66,16 +66,16 @@ export const view = async (ctx) => {
 // Service Desk 등록
 // POST /api/servicedesk/request
 export const request = async (ctx) => {
-    const { req_id, status, req_user, main_type, sub_type, title, contents, due_date, cost, use_yn,
+    const { req_id, status, req_user, main_type, sub_type, title, contents, due_date, cost, asset_id, use_yn,
             files
           } = ctx.request.body;
     
     console.log('service request: ', req_id)
 
     try {   
-        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) "
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) "
         const values = ['REQUEST', req_id, status, req_user, main_type, sub_type, title, contents, due_date, cost, 
-                        '','','','','','', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+                        asset_id, '','','','','','', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
         const retVal = await client.query(sql, values);
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -186,9 +186,9 @@ export const receipt = async (ctx) => {
           } = ctx.request.body;
 
     try {   
-        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) "
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) "
         const values = ['RECEIPT', req_id, '', '', '', '', '', '', '', '', 
-        rec_user, due_date, rec_type, rec_memo, '', '', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+                        '', rec_user, due_date, rec_type, rec_memo, '', '', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
         const retVal = await client.query(sql, values);   
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
