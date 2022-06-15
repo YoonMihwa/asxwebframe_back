@@ -111,8 +111,8 @@ export const file_upload = async (ctx) => {
                     if( file.file_name && file.file_data ) {
                         
                         count += 1;
-                        const file_sql =  " select * from F_FILE_MANAGE ('FILE_REGISTER', $1, $2, $3, $4, $5, $6, $7, $8) ";
-                        const file_values = [ req_id, req_status, count, file.file_name, file.file_data, '', login_ip, user_id];
+                        const file_sql =  " select * from F_FILE_MANAGE ('FILE_REGISTER', $1, $2, $3, $4, $5, $6, $7, $8, $9) ";
+                        const file_values = [ req_id, req_status, count, file.file_name, file.file_type, file.file_data, '', login_ip, user_id];
                         const file_retVal = await client.query(file_sql, file_values);
             
                         if( file_retVal.rows[0].r_result_type === 'OK' ) {
