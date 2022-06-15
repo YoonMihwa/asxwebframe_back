@@ -1,7 +1,7 @@
 const client = require('../../db_connect');
 
 // Service Desk 조회
-// POST api/service/search
+// POST api/servicedesk/search
 export const search = async (ctx) => {
     const { date_type, from_date, to_date, status, main_type, sub_type, user_type, user_name, lang_code } = ctx.request.body;
     
@@ -26,8 +26,45 @@ export const search = async (ctx) => {
 };
 
 
+// Service Desk 상세 조회
+// POST api/servicedesk/view
+export const view = async (ctx) => {
+    const { req_id, lang_code } = ctx.request.body;
+    
+    console.log('servicedesk view : ', req_id, lang_code );
+
+    let sd_info = {
+        servicedesk: [],
+        files: []
+    };
+
+    try {   
+        const sql = "SELECT * FROM F_SERVICEDESK_VIEW( $1, $2) ";
+        const filesql = "SELECT * FROM F_FILE_VIEW( $1 ) ";
+        const values = [ req_id, lang_code ];
+        const filevalues = [ req_id ];
+
+        const retVal = await client.query(sql, values);
+        const fileVal = await client.query(filesql, filevalues);
+
+        if( retVal.rowCount === 0 ){
+            ctx.body = [];
+        } else {
+            ctx.status = 200;
+            sd_info.servicedesk = retVal.rows;
+            sd_info.files = fileVal.rows;
+
+            ctx.body = sd_info;
+        }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+
 // Service Desk 등록
-// POST /api/service/request
+// POST /api/servicedesk/request
 export const request = async (ctx) => {
     const { req_id, status, req_user, main_type, sub_type, title, contents, due_date, cost, use_yn,
             files
@@ -63,7 +100,7 @@ export const request = async (ctx) => {
 };
 
 // Service Desk 등록
-// POST /api/service/file_upload
+// POST /api/servicedesk/file_upload
 export const file_upload = async (ctx) => {
     // const { req_id,         // 요청문서id
     //         req_status,     // 요청문서 상태 : 요청request, 처리process
@@ -143,7 +180,7 @@ export const file_upload = async (ctx) => {
 
 
 // Service Desk 접수
-// POST /api/service/receipt
+// POST /api/servicedesk/receipt
 export const receipt = async (ctx) => {
     const { req_id, rec_user, due_date, rec_type, rec_memo
           } = ctx.request.body;
