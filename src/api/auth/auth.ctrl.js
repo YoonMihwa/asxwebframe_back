@@ -105,6 +105,36 @@ export const search = async (ctx) => {
     }         
 };
 
+/*
+    GET /api/auth/check
+*/ 
+export const check = async ctx => {
+    const { user } = ctx.state;
+
+    console.log(' check user :', user);     
+    // const now_ip = requestIp.getClientIp(ctx);
+  
+    if (!user) {
+        // console.log('Not login..');
+        ctx.body = 'Not login..';
+        ctx.status = 401;   // Unauthorized
+        return;
+    } 
+    // console.log('check..', user);
+    ctx.body = user;
+};
+
+
+/*
+    GET /api/auth/logout
+*/
+export const logout = async ctx => {
+    console.log('logout..');
+    ctx.cookies.set('access_token');
+    ctx.status = 204;   // No Conent
+};
+
+
 // generateToken
 exports.generateToken = async ( com_id, user_id, login_ip ) => {
 
