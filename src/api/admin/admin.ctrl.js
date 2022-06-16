@@ -484,6 +484,34 @@ export const grid_item_view = async (ctx) => {
     }         
 };
 
+// Grid items display 순서 변경
+// POST /api/admin/item_display
+export const item_display = async (ctx) => {
+    const { grid_id, item_id, display_seq} = ctx.request.body;
+
+    try {   
+
+        let sql =  "select * from F_GRID_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, "
+            sql += "                             $21, $22, $23, $24, $25)";
+        const values = ['CHANGE_DISPLAY', grid_id, '', item_id, '', '', '', '', '', '', 
+        '', '', '', '', '', '', '', '', '', '',    
+        '', display_seq, '', ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+    } else {
+        ctx.status = 400;
+        ctx.body = retVal.rows[0].r_result_msg;
+    };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }
+};
+
 // Grid item 삭제
 // POST api/admin/grid_item_del
 export const grid_item_del = async (ctx) => {
