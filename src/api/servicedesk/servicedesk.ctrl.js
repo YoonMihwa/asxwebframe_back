@@ -245,7 +245,7 @@ export const prc_change = async (ctx) => {
 // Service Desk 처리
 // POST /api/servicedesk/process
 export const process = async (ctx) => {
-    const { req_id, prc_status, start_date, end_date, prc_memo,files
+    const { req_id, prc_status, start_date, end_date, prc_memo, files, expendables
           } = ctx.request.body;
 
     console.log("process",req_id)
@@ -259,11 +259,32 @@ export const process = async (ctx) => {
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
             ctx.status = 200;
-            ctx.body = retVal.rows[0].r_result_msg;
+            ctx.body = retVal.rows[0].r_result_msg; 
 
             //-- 파일저장
             const fileUpload = await this.file_upload({com_id:ctx.state.user.com_id, req_id:req_id, req_status:"process", files:files, user_id:ctx.state.user.user_id, login_ip:ctx.state.user.login_ip});
-            console.log('fileUpload: ', fileUpload)            
+            // console.log('fileUpload: ', fileUpload)
+
+            let count = 0;
+            //-- 소모품 사용 내역
+            if( expendables && Array.isArray(expendables) ) {
+                expendables.forEach(async exp => {
+
+                    count += 1;
+                    const expsql =  "select * from F_SVR_EXP_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8) "
+                    const expvalues = [ctx.state.user.com_id, req_id, exp.exp_id, exp.qty, 0, count, ctx.state.user.login_ip, ctx.state.user.user_id];               
+                    const expVal = await client.query(expsql, expvalues);   
+                    
+                    if( expVal.rows[0].r_result_type === 'OK' ) {
+                        ctx.status = 200;
+                        ctx.body = expVal.rows[0].r_result_msg;
+                
+                    } else {
+                        ctx.status = 400;
+                        ctx.body = expVal.rows[0].r_result_msg;
+                    };                    
+                })
+            }; 
 
         } else {
             ctx.status = 400;

@@ -111,7 +111,7 @@ export const search = async (ctx) => {
 export const check = async ctx => {
     const { user } = ctx.state;
 
-    console.log(' check user :', user);     
+    // console.log(' check user :', user);     
     // const now_ip = requestIp.getClientIp(ctx);
   
     if (!user) {
