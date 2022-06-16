@@ -35,17 +35,20 @@ export const view = async (ctx) => {
 
     let sd_info = {
         servicedesk: [],
-        files: []
+        files: [],
+        expendables:[]
     };
 
     try {   
         const sql = "SELECT * FROM F_SERVICEDESK_VIEW( $1, $2, $3) ";
         const filesql = "SELECT * FROM F_FILE_VIEW( $1, $2 ) ";
+        const expsql = "SELECT * FROM F_SVR_EXP_VIEW( $1, $2 ) ";
         const values = [ com_id, req_id, lang_code ];
         const filevalues = [ com_id, req_id ];
 
         const retVal = await client.query(sql, values);
         const fileVal = await client.query(filesql, filevalues);
+        const expVal = await client.query(expsql, filevalues);
 
         if( retVal.rowCount === 0 ){
             ctx.body = [];
@@ -53,6 +56,7 @@ export const view = async (ctx) => {
             ctx.status = 200;
             sd_info.servicedesk = retVal.rows;
             sd_info.files = fileVal.rows;
+            sd_info.expendables = expVal.rows;
 
             ctx.body = sd_info;
         }
