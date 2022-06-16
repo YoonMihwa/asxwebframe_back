@@ -73,9 +73,9 @@ export const request = async (ctx) => {
     console.log('service request: ', req_id)
 
     try {   
-        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) "
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) "
         const values = ['REQUEST', req_id, status, req_user, main_type, sub_type, title, contents, due_date, cost, 
-                        asset_id, '','','','','','', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+                        asset_id, '','','','','','','','','', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
         const retVal = await client.query(sql, values);
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -182,13 +182,13 @@ export const file_upload = async (ctx) => {
 // Service Desk 접수
 // POST /api/servicedesk/receipt
 export const receipt = async (ctx) => {
-    const { req_id, rec_user, due_date, rec_type, rec_memo
+    const { req_id, due_date, rec_type, rec_memo, prc_user
           } = ctx.request.body;
 
     try {   
-        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) "
-        const values = ['RECEIPT', req_id, '', '', '', '', '', '', '', '', 
-                        '', rec_user, due_date, rec_type, rec_memo, '', '', use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) "
+        const values = ['RECEIPT', req_id, '', '', '', '', '', '', '', '0', 
+                        '', ctx.state.user.user_id, due_date, rec_type, rec_memo, prc_user,'','', '', '', '', ctx.state.user.login_ip, ctx.state.user.user_id];
         const retVal = await client.query(sql, values);   
 
         if( retVal.rows[0].r_result_type === 'OK' ) {
@@ -205,3 +205,88 @@ export const receipt = async (ctx) => {
     }         
 };
 
+
+// Service Desk 담당자변경
+// POST /api/servicedesk/prc_change
+export const prc_change = async (ctx) => {
+    const { req_id, prc_user, change_memo
+          } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) "
+        const values = ['PRC_CHANGE', req_id, '', '', '', '', '', '', '', '0', 
+                        '', '', '', '', change_memo, prc_user, '','','','', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+
+        const retVal = await client.query(sql, values);   
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+// Service Desk 처리
+// POST /api/servicedesk/process
+export const process = async (ctx) => {
+    const { req_id, prc_status, start_date, end_date, prc_memo,files
+          } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) "
+        const values = ['PRC_UPDATE', req_id, prc_status, '', '', '', '', '', '', '0', 
+                        '', '', '', '', prc_memo, ctx.state.user.user_id, start_date, end_date,'','', '', ctx.state.user.login_ip, ctx.state.user.user_id];
+
+        const retVal = await client.query(sql, values);   
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+            //-- 파일저장
+            const fileUpload = await this.file_upload({req_id:req_id, req_status:"process", files:files, user_id:ctx.state.user.user_id, login_ip:ctx.state.user.login_ip});
+            console.log('fileUpload: ', fileUpload)
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+// Service Desk 만족도조사 evaluation
+// POST /api/servicedesk/evaluation
+export const evaluation = async (ctx) => {
+    const { req_id, user_score, user_opinion
+          } = ctx.request.body;
+
+    try {   
+        const sql =  "select * from F_SERVICE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) "
+        const values = ['USER_SCORE', req_id, '', '', '', '', '', '', '', '0', 
+                        '', '', '', '', '', '', '', '', user_score, user_opinion, '', ctx.state.user.login_ip, ctx.state.user.user_id];
+
+        const retVal = await client.query(sql, values);   
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
