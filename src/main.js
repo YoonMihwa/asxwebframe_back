@@ -44,16 +44,19 @@ app.use((ctx, next) => {
         "/api/admin/code_search",
         "/api/admin/lang_search",
         "/api/admin/company_list",
+        "/api/auth/login",
+        "/api/auth/register",
     ];
 
     const {
         request: { url },
     } = ctx;
+    console.log(url);
 
     // 만약 예외 요청이라면 바로 넘어감.
     if (accetpUrl.some((el) => el === url)) {
         console.log("예외 입니다.: ", url);
-        // return next();
+        return next();
     }
 
     const { user } = ctx.state;
