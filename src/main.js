@@ -33,6 +33,29 @@ app.use(bodyParser({
 
 app.use(jwtMiddleware);
 
+const exceptionUrl = [
+    "/api/admin/ctrl_search",
+    "/api/admin/code_search",
+    "/api/admin/lang_search",
+    "/api/admin/company_list",
+    "/api/auth/login",
+    "/api/auth/register"
+];
+
+app.use((ctx, next) => {
+    if (exceptionUrl.includes(ctx.request.url)){
+        return next();
+    } else {
+        if (!ctx.state.user) {
+            ctx.body = 'Not login..';
+            ctx.status = 401;   // Unauthorized
+            return;
+        } 
+        ctx.body = ctx.state.user;
+        return next();
+    }
+});
+
 // app 인스턴스에 라우터 적용
 app.use(router.routes()).use(router.allowedMethods());
 
