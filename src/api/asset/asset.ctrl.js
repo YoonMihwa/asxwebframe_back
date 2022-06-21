@@ -117,7 +117,6 @@ export const act_register = async (ctx) => {
         if( retVal.rows[0].r_result_type === 'OK' ) {
             ctx.status = 200;
             ctx.body = retVal.rows[0].r_result_msg;
-            const v_req_id = retVal.rows[0].r_result_msg;
 
         } else {
             ctx.status = 400;
@@ -201,6 +200,36 @@ export const exp_view = async (ctx) => {
             ctx.status = 200;
             ctx.body = retVal.rows;;
         }
+    } catch(e) {
+        console.error(e);
+        ctx.status = 400;
+    }         
+};
+
+
+// 소모품 등록
+// POST /api/asset/exp_register
+export const exp_register = async (ctx) => {
+    let { exp_id, exp_qty, exp_type, exp_maker, exp_model, exp_sn, buy_date, buy_company
+          } = ctx.request.body;
+
+    console.log('expendables register: ', exp_id)
+
+    try { 
+        const sql =  "select * from F_EXPENDABLE_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) "
+        const values = ['EXP_REGISTER', ctx.state.user.com_id, exp_id, exp_qty, exp_type, exp_maker, exp_model, exp_sn, buy_date, buy_company,
+                        '', ctx.state.user.login_ip, ctx.state.user.user_id];
+        const retVal = await client.query(sql, values);
+
+        if( retVal.rows[0].r_result_type === 'OK' ) {
+            ctx.status = 200;
+            ctx.body = retVal.rows[0].r_result_msg;
+
+        } else {
+            ctx.status = 400;
+            ctx.body = retVal.rows[0].r_result_msg;
+        };
+       
     } catch(e) {
         console.error(e);
         ctx.status = 400;
