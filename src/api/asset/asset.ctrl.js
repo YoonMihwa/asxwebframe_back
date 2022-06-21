@@ -65,7 +65,7 @@ export const view = async (ctx) => {
 // POST /api/asset/register
 export const register = async (ctx) => {
     let { asset_id, asset_status, asset_type, maker, model, asset_sn, asset_location, buy_date, buy_company, 
-            cpu, ram, hdd, remark, asset_qty
+            cpu, ram, hdd, remark, asset_qty, use_yn
           } = ctx.request.body;
 
     console.log('asset register: ', asset_qty, asset_id, asset_status)
@@ -80,7 +80,7 @@ export const register = async (ctx) => {
             // console.log('asset register i: ', i)
             const sql =  "select * from F_ASSET_MANAGE ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) "
             const values = ['REGISTER', ctx.state.user.com_id, asset_id, asset_status, asset_type, maker, model, asset_sn, asset_location, buy_date, 
-                            buy_company, cpu, ram, hdd, remark, '', ctx.state.user.login_ip, ctx.state.user.user_id];
+                            buy_company, cpu, ram, hdd, remark, use_yn, ctx.state.user.login_ip, ctx.state.user.user_id];
             const retVal = await client.query(sql, values);
 
             if( retVal.rows[0].r_result_type === 'OK' ) {
